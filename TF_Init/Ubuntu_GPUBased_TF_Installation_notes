@@ -1,0 +1,58 @@
+Since Ubuntu may have compatibility issues with NVIDIA graphics driver, it took me around a week to finally made it work.
+At first, I installed Ubuntu 18.04 as the foundation of all following steps and I've tried to installed NVIDIA graphics driver ver.390(around six sub-versions) and ver.396. But the Xorg just won't work and the desktop won't show. So I reinstalled Ubuntu with ver.17.10 together with NVIDIA graphics driver ver.384.130 (I guess even the newest Ubuntu system cannot work with NVIDIA driver later than 390), and luckily, it works.
+
+Here are cmds that I used along the way:
+
+Ignore modeset gloablly (to ignore drivers for display, I haven't applied this method after the installation of 17.10, it can help when you can login into the cmd line but the system just stuck at the process of loading GUI or Xorg):
+    vi /etc/default/grub (add "modeset" in a suitable place)
+    update-grub (refresh gub file)
+
+Add nouveau to blacklist (to blacklist default nouveau driver for NVIDIA graphics card, do this when you really want to accelerate computing via NVIDIA GPU(s)):
+    vi /etc/modeprobe.d/blacklist.conf
+    add lines at the end:
+        blacklist nouveau
+        blacklist lbm-nouveau
+        options nouveau modeset=0
+        alias nouveau off
+        alias lbm-nouveau off
+    update-initramfs -u
+    lsmod | grep nouveau
+
+Check drivers that supported by the system and remove any previous modules, then install one(prime enable you to switch graphics card between nvidia and core, normally Intel graphics card ):
+    apt-cache search nvidia
+    apt-get purge nvidia*
+    apt-get autoremove
+    apt-get install nvidia-verNum nvidia-prime
+
+check if driver installed successfully:
+    nvidia-smi
+    prime-select query
+
+Check system info
+    lsb_release -a
+    uname -a
+    lspci | grep VGA
+    lspci | grep NVIDIA
+
+Resolution modification (useful when there's only a limited of options in your resolution settings)
+    cvt 1920 1080 (find the mode string )
+    xrandr
+    xrandr --newmode "1920x1080..." 173 123 ... (the mode string captured from the first cmd)
+    xrandr --addmode "1920x1080..."
+
+Gcc version control ( so as to be compatible with cuda, cuda 9.0 requires the version of gcc and g++ to be lower than 6.0)
+    gcc --version (check if it is compatible)
+    apt install gcc-5 g++-5
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50 (the last number is priority)
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
+
+After that, we are able to install cuda 9.0, cuDNN 7.1 and then tensorflow. Follow the instructions from NVIDIA official website and it shouldn't be difficult.
+By the way, the download service from github sometimes become so slow and horrible, which made me download tf through a line of cmd:
+    pip install tensorflow-gpu==1.8.0
+Before that, we need to install enviroment for pip and some functions of python
+    apt-get install python-pip python-dev
+    apt-get install python-numpy swig python-dev python-wheel
+    apt-get install libcupti-dev (after the installation of cuda)
+
+For the version of tensorflow, be aware that newer version of tensorflow require higher version of gcc and g++ (at least it's true for me), while cuda needs a lower gcc and g++. Try not make any conflict!!!
+At first I installed the newest version of tf (i.e. 1.9.0). When I ran the installation file, compile errors occur (it said some function is not distinguishable in namespace std, even though I added an alias like "g++ std=VC11++", they still occur). After that, I shifted the g++ version back to 7.3.0 (the default version in 17.10), all compile errors had gone but in the end of the installation, cuda throw an error that told me the g++ version detected is much higher than 6.0 and it choose to die. I cannot find information about the range of g++ versions each version of tf accept, which made me disappointed. But when I reinstall tensorflow with just one version older, the installation process completed without any error. Life is that amazing, isn't it:)
