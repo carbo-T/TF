@@ -1,0 +1,145 @@
+systemInfo:
+
+(uname -a)
+Linux youchen-Inspiron 4.13.0-21-generic #24-Ubuntu SMP Mon Dec 18 17:29:16 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+(from lsb_release -a)
+Distributor ID:	Ubuntu
+Description:	Ubuntu 17.10
+Release:	17.10
+Codename:	artful
+
+(/proc/cpuinfo)
+cpu 4 cores
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 158
+model name	: Intel(R) Core(TM) i5-7300HQ CPU @ 2.50GHz
+stepping	: 9
+microcode	: 0x8e
+cpu MHz		: 2500.000
+cache size	: 6144 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 4
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 22
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb intel_pt tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp
+bugs		:
+bogomips	: 4992.00
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+(NVIDIA cuda 9.0 samples 1.utilities deviceQuery)
+GPU GTX 1050ti 4G, with CUDA 9.0 and cuDNN 7.1
+Device 0: "GeForce GTX 1050 Ti"
+  CUDA Driver Version / Runtime Version          9.0 / 9.0
+  CUDA Capability Major/Minor version number:    6.1
+  Total amount of global memory:                 4039 MBytes (4235001856 bytes)
+  ( 6) Multiprocessors, (128) CUDA Cores/MP:     768 CUDA Cores
+  GPU Max Clock rate:                            1620 MHz (1.62 GHz)
+  Memory Clock rate:                             3504 Mhz
+  Memory Bus Width:                              128-bit
+  L2 Cache Size:                                 1048576 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 9.0, CUDA Runtime Version = 9.0, NumDevs = 1
+Result = PASS
+
+(/proc/meminfo)
+mem 8G
+MemTotal:        8035040 kB
+MemFree:         2917436 kB
+MemAvailable:    5674304 kB
+Buffers:          176528 kB
+Cached:          2481976 kB
+SwapCached:            0 kB
+Active:          3150140 kB
+Inactive:        1529604 kB
+Active(anon):    1721356 kB
+Inactive(anon):    62668 kB
+Active(file):    1428784 kB
+Inactive(file):  1466936 kB
+Unevictable:          16 kB
+Mlocked:              16 kB
+SwapTotal:       4882428 kB
+SwapFree:        4882428 kB
+Dirty:               300 kB
+Writeback:             0 kB
+AnonPages:       2021288 kB
+Mapped:           436224 kB
+Shmem:             63740 kB
+Slab:             235680 kB
+SReclaimable:     171060 kB
+SUnreclaim:        64620 kB
+KernelStack:       12208 kB
+PageTables:        52380 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     8899948 kB
+Committed_AS:    7338388 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:           0 kB
+VmallocChunk:          0 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      273256 kB
+DirectMap2M:     6930432 kB
+DirectMap1G:     1048576 kB
+
+(df -h)
+disk 100G for Ubuntu
+Filesystem      Size  Used Avail Use% Mounted on
+udev            3.9G     0  3.9G   0% /dev
+tmpfs           785M   19M  767M   3% /run
+/dev/sdb6        28G  3.7G   23G  14% /
+/dev/sdb10       34G  8.6G   24G  27% /usr
+tmpfs           3.9G  9.0M  3.9G   1% /dev/shm
+tmpfs           5.0M  4.0K  5.0M   1% /run/lock
+tmpfs           3.9G     0  3.9G   0% /sys/fs/cgroup
+/dev/sda1       496M   67M  430M  14% /boot/efi
+/dev/sdb9        32G  8.0G   23G  27% /home
+tmpfs           785M   16K  785M   1% /run/user/121
+tmpfs           785M   52K  785M   1% /run/user/1000
+tmpfs           785M     0  785M   0% /run/user/0
