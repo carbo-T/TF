@@ -20,3 +20,6 @@ with tf.Session() as sess:
     # sess.run(w2.initializer)
     sess.run(tf.global_variables_initializer())
     print (sess.run(y, feed_dict={x: [[0.7, 0.9], [0.1, 0.4], [0.5, 0.8]]}))
+
+    saver = tf.train.Saver()
+    saver.export_meta_graph("model.ckpt.meda.json", as_text=True)
