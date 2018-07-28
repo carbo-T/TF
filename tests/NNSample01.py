@@ -36,7 +36,7 @@ with tf.Session() as sess:
 
     # writer = tf.summary.FileWriter("logs", tf.get_default_graph())
     # set the number of iteration
-    STEPS = 50000
+    STEPS = 10000
     for i in range(STEPS):
         start = (i * batch_size) % dataset_size
         end = min(start+ batch_size, dataset_size)

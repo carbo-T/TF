@@ -9,7 +9,7 @@ w2 = tf.Variable(tf.random_normal([3, 1], stddev=1, seed=1))
 # x = tf.constant([[0.7, 0.9]])
 
 # use placeholder to store data in a constant place rather than create a large number of variables
-x = tf.placeholder(tf.float32,shape=[3, 2], name="input")
+x = tf.placeholder(tf.float32, shape=[3, 2], name="input")
 
 # forward propagation to receive the output
 a = tf.matmul(x, w1)
