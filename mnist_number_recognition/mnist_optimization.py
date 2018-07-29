@@ -165,7 +165,7 @@ def train(mnist):
 
 
 def main(argv=None):
-    mnist = input_data.read_data_sets("MNIST_data", one_hot=True)
+    mnist = input_data.read_data_sets("../MNIST_data", one_hot=True)
     print "basic information of mnist dataset"
     print "mnist training data size: ", mnist.train.num_examples
     print "mnist validating data size: ", mnist.validation.num_examples
