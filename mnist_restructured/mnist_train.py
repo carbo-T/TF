@@ -64,16 +64,16 @@ def train(mnist):
             _, loss_value, step = sess.run([train_op, loss, global_step], feed_dict={x: xs, y_: ys})
 
             if i % 2500 == 0:
-                print "after %d training step(s), loss on training batch is %g " % (step, loss_value)
+                print("after %d training step(s), loss on training batch is %g " % (step, loss_value))
                 saver.save(
                     sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME), global_step=global_step
                 )
 
 
 def main(argv=None):
-    print "start"
-    mnist = input_data.read_data_sets("MNIST_data", one_hot=True)
-    print "start"
+    print("start")
+    mnist = input_data.read_data_sets("../MNIST_data", one_hot=True)
+    print("start")
     train(mnist)
 
 

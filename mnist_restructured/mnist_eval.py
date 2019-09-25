@@ -10,7 +10,7 @@ import os
 
 # generate new random dataset for test in 3 secs after close figure window manually
 EVAL_INTERVAL_SECS = 3
-NUMBER_OF_SAMPLES = 12
+NUMBER_OF_SAMPLES = 36
 FIG_ROWS = 3
 
 
@@ -61,9 +61,10 @@ def evaluation(mnist):
                         [indices, correct_indices], feed_dict=validation_feed)
                     # accuracy_score = sess.run(accuracy, feed_dict=validation_feed)
                     # print "after %s training step(s), validation accuracy = %g" % (global_step, accuracy_score)
-                    print "after %s training step(s), validation result = %s, correct answer: %s" \
-                          % (global_step, indices_score, correct_indices_score)
+                    print("after %s training step(s), validation result = \n%s\n, correct answer: \n%s" \
+                          % (global_step, indices_score, correct_indices_score))
                     fig = plt.figure(1)
+                    fig.set_size_inches(15,6)
                     for n in range(1, NUMBER_OF_SAMPLES + 1):
                         fig.add_subplot(FIG_ROWS, (NUMBER_OF_SAMPLES / FIG_ROWS + 1), n)
                         plt.title("predict: [%s]\nanswer: [%s]"
@@ -82,7 +83,7 @@ def evaluation(mnist):
                     # fig.add_subplot(2, 3, 6)
                     # plt.imshow(mnist.validation.images[sample_index + 5].reshape(28, 28))
                     plt.subplots_adjust(
-                        top=0.9, bottom=0.1, left=0.1, right=0.9, hspace=0.5, wspace=0.55)
+                        top=0.95, bottom=0.05, left=0.05, right=0.95, hspace=0.5, wspace=0.55)
                     try:
                         os.mkdir('images/')
                     except:
@@ -91,14 +92,14 @@ def evaluation(mnist):
                     plt.show()
 
                 else:
-                    print "no checkpoint file found"
+                    print("no checkpoint file found")
                     return
 
             time.sleep(EVAL_INTERVAL_SECS)
 
 
 def main(argv=None):
-    mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
+    mnist = input_data.read_data_sets('../MNIST_data', one_hot=True)
     evaluation(mnist)
 
 

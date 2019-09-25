@@ -23,7 +23,7 @@ BATCH_SIZE = 1000
 LEARNING_RATE_BASE = 0.8
 LEARNING_RATE_DECAY = 0.999
 REGULARIZATION_RATE = 0.0001
-TRAINING_STEPS = 100000
+TRAINING_STEPS = 200000
 MOVING_AVERAGE_DECAY = 0.99
 
 
@@ -95,7 +95,8 @@ def train(mnist):
     with tf.control_dependencies([train_step, variable_averages_op]):
         train_op = tf.no_op(name="train")
 
-    correct_prediction = tf.equal(tf.arg_max(average_y, 1), tf.arg_max(y_, 1))
+    # correct_prediction = tf.equal(tf.arg_max(average_y, 1), tf.arg_max(y_, 1))
+    correct_prediction = tf.equal(tf.arg_max(y, 1), tf.arg_max(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     with tf.Session() as sess:
@@ -131,6 +132,20 @@ def train(mnist):
         saver = tf.train.Saver()
         saver.export_meta_graph("model.ckpt.meda.json", as_text=True)
 
+    dispImg(validation_result, test_result, "with EMA")
+    # img_vector = mnist.train.images[5]
+    # img_length = int(np.sqrt(INPUT_NODE))
+    # img = np.ndarray([img_length, img_length])
+    # # print "image size: ", img_length, "*", img_length
+    # for c in range(INPUT_NODE):
+    #     # print "image indices: ", c / img_length, "*", c % img_length
+    #     img[c / img_length][c % img_length] = img_vector[c]
+    # plt.figure(num=2, figsize=(15, 8))
+    # plt.imshow(img)
+    plt.show()
+
+
+def dispImg(validation_result, test_result, filename):
     # draw a graph of accuracy using matplotlib
     iteration_count = range(0, TRAINING_STEPS, 1000)
     plt.figure(num=1, figsize=(15, 8))
@@ -151,17 +166,7 @@ def train(mnist):
         os.mkdir('images/')
     except:
         print("directory already exist")
-    plt.savefig('images/mnist_accuracy_evaluation.png', format='png')
-    img_vector = mnist.train.images[5]
-    img_length = int(np.sqrt(INPUT_NODE))
-    img = np.ndarray([img_length, img_length])
-    # print "image size: ", img_length, "*", img_length
-    for c in range(INPUT_NODE):
-        # print "image indices: ", c / img_length, "*", c % img_length
-        img[c / img_length][c % img_length] = img_vector[c]
-    plt.figure(num=2, figsize=(15, 8))
-    plt.imshow(img)
-    plt.show()
+    plt.savefig('images/%s.png' % filename, format='png')
 
 
 def main(argv=None):
