@@ -101,7 +101,7 @@ def distort_color(image, color_ordering=0):
     return tf.clip_by_value(image, 0.0, 1.0)
 
 
-def process_for_train(image, height, width, bbox):
+def process_for_train(image, height, width, bbox, channels=3):
     if bbox is None:
         bbox = tf.constant([0.0, 0.0, 1.0, 1.0], dtype=tf.float32, shape=[1, 1, 4])
 
@@ -119,7 +119,11 @@ def process_for_train(image, height, width, bbox):
     # filp img
     distorted_img = tf.image.random_flip_left_right(distorted_img)
     distorted_img = tf.image.random_flip_up_down(distorted_img)
-    distorted_img = distort_color(distorted_img, np.random.randint(3))
+    if channels == 3:
+        distorted_img = distort_color(distorted_img, np.random.randint(3))
+    # distorted_img = tf.image.convert_image_dtype(distorted_img, dtype=tf.uint8)
+    # print(distorted_img.shape)
+    distorted_img.set_shape([height, width, channels])
     return distorted_img
 
 
@@ -132,7 +136,7 @@ def main():
 
         for i in range(6):
             plt.figure(i)
-            result = process_for_train(img_data, 500,300,boxes)
+            result = process_for_train(img_data, 500, 300, boxes)
             plt.imshow(result.eval())
 
         plt.show()

@@ -1,5 +1,6 @@
 inceptionv3/model/*
 inceptionv3/preprocess/*
+*.tfrecord
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

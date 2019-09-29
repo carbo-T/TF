@@ -18,23 +18,44 @@ def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 
-def save_mnist_record(output_filename="output_mnist.tfrecords"):
+def save_mnist_record(dataset=0, output_filename="record/output_mnist.tfrecords"):
     mnist = input_data.read_data_sets("../MNIST_data", dtype=tf.uint8, one_hot=True)
-    images = mnist.train.images
-    labels = mnist.train.labels
+    images = []
+    labels = []
+    num_examples=0
+    if dataset == 0:
+        images = mnist.train.images
+        labels = mnist.train.labels
+        num_examples = mnist.train.num_examples
+    elif dataset == 1:
+        images = mnist.validation.images
+        labels = mnist.validation.labels
+        num_examples = mnist.validation.num_examples
+    elif dataset == 2:
+        images = mnist.test.images
+        labels = mnist.test.labels
+        num_examples = mnist.test.num_examples
+    print(num_examples)
     # define resolution
-    pixels = images.shape[1]
-    num_examples = mnist.train.num_examples
+    # pixels = images.shape[1]
+    # print(images[0].shape)
 
     writer = tf.python_io.TFRecordWriter(output_filename)
     for index in range(num_examples):
         # convert img to str
         image_raw = images[index].tostring()
         # create Example Protocol Buffer
+        # example = tf.train.Example(features=tf.train.Features(feature={
+        #     'pixels': _int64_feature(pixels),
+        #     'label': _int64_feature(np.argmax(labels[index])),
+        #     'image_raw': _bytes_feature(image_raw)
+        # }))
         example = tf.train.Example(features=tf.train.Features(feature={
-            'pixels': _int64_feature(pixels),
+            'image': _bytes_feature(image_raw),
             'label': _int64_feature(np.argmax(labels[index])),
-            'image_raw': _bytes_feature(image_raw)
+            'height': _int64_feature(28),
+            'width': _int64_feature(28),
+            'channels': _int64_feature(1),
         }))
         writer.write(example.SerializeToString())
     writer.close()
@@ -74,8 +95,10 @@ def read_mnist_record(input_filename="output_mnist.tfrecords"):
 
 
 def main():
-    # save_mnist_record()
-    read_mnist_record()
+    save_mnist_record(0, "record/mnist_train.tfrecord")
+    save_mnist_record(1, "record/mnist_validation.tfrecord")
+    save_mnist_record(2, "record/mnist_test.tfrecord")
+    # read_mnist_record()
 
 
 if __name__ == '__main__':
