@@ -268,7 +268,7 @@ def process_data(doTrain=True):
     min_after_dequeue = 2000
     shuffle_buffer = 10000
     num_epochs = 50  # same effect as training_rounds
-    batch_size = 500
+    batch_size = 1000
     training_rounds = 5000
     training_images = 55000  # 362
     validation_images = 5000  # 367
@@ -287,34 +287,41 @@ def process_data(doTrain=True):
                                     image_size,
                                     num_channels], name='x-input')
     y_ = tf.placeholder(tf.float32, [None], name='y-input')
+
     regularizer = tf.contrib.layers.l2_regularizer(regularization_rate)
     y = mnist_inference.inference(x, True, regularizer)
-
     global_step = tf.Variable(0, trainable=False)
 
     # moving average, cross entropy, loss function with regularization and learning rate
-    variable_average = tf.train.ExponentialMovingAverage(moving_average_decay, global_step)
-    variable_average_op = variable_average.apply(tf.trainable_variables())
-    # calc loss
-    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=tf.cast(y_, tf.int32))
-    cross_entropy_mean = tf.reduce_mean(cross_entropy)
-    loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
-    learning_rate = tf.train.exponential_decay(
-        learning_rate_base,
-        global_step,
-        training_images / batch_size,
-        learning_rate_decay
-    )
+    with tf.name_scope("moving_average"):
+        variable_average = tf.train.ExponentialMovingAverage(moving_average_decay, global_step)
+        variable_average_op = variable_average.apply(tf.trainable_variables())
 
-    train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss, global_step=global_step)
-    with tf.control_dependencies([train_step, variable_average_op]):
-        train_op = tf.no_op(name='train')
+    # calc loss
+    with tf.name_scope("loss_function"):
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=tf.cast(y_, tf.int32))
+        cross_entropy_mean = tf.reduce_mean(cross_entropy)
+        tf.summary.scalar('cross_entropy', cross_entropy_mean)
+        loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
+
+    with tf.name_scope("train_step"):
+        learning_rate = tf.train.exponential_decay(
+            learning_rate_base,
+            global_step,
+            training_images / batch_size,
+            learning_rate_decay
+        )
+        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss, global_step=global_step)
+        with tf.control_dependencies([train_step, variable_average_op]):
+            train_op = tf.no_op(name='train')
 
     # define accuracy
-    prediction = tf.argmax(y, 1)
-    answer = tf.cast(y_, tf.int64)
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.cast(y_, tf.int64))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    with tf.name_scope("accuracy_calc"):
+        prediction = tf.argmax(y, 1)
+        answer = tf.cast(y_, tf.int64)
+        correct_prediction = tf.equal(tf.argmax(y, 1), tf.cast(y_, tf.int64))
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        tf.summary.scalar('accuracy', accuracy)
     # test_result = list(range(int(training_rounds / 500)))
 
     # # ********** original tfrecord data operator **********
@@ -339,7 +346,7 @@ def process_data(doTrain=True):
         lambda image, label: (
             preprocessing.process_for_train(tf.image.convert_image_dtype(image, dtype=tf.float32), image_size,
                                             image_size, None, 1), label
-        # tf.image.resize_images(tf.image.convert_image_dtype(image, dtype=tf.float32), [image_size, image_size]), label
+            # tf.image.resize_images(tf.image.convert_image_dtype(image, dtype=tf.float32), [image_size, image_size]), label
         ))
     dataset = dataset.shuffle(shuffle_buffer).batch(batch_size)
     dataset = dataset.repeat(num_epochs)
@@ -378,7 +385,10 @@ def process_data(doTrain=True):
     saver = tf.train.Saver()
     config = tf.ConfigProto(allow_soft_placement=True)
     config.gpu_options.allow_growth = True
+
+    merged = tf.summary.merge_all()
     with tf.Session(config=config) as sess:
+        writer = tf.summary.FileWriter("log", sess.graph)
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
 
@@ -394,6 +404,7 @@ def process_data(doTrain=True):
             sess.run(validation_iterator.initializer)
             while True:
                 i += 1
+
                 try:
                     # img = sess.run(distorted_img)
                     # plt.imshow(img)
@@ -402,13 +413,28 @@ def process_data(doTrain=True):
                     xs, ys = sess.run([image_batch, label_batch])
                     # print(xs.shape)
                     # print(ys.shape)
-                    _, loss_value, step = sess.run([train_op, loss, global_step], feed_dict={x: xs, y_: ys})
 
                     if i % 200 == 0:
+
+                        # config necessary info when training
+                        run_options = tf.RunOptions(
+                            trace_level=tf.RunOptions.FULL_TRACE
+                        )
+                        # record proto when training
+                        run_metadata = tf.RunMetadata()
+                        summary, _, loss_value, step = sess.run([merged, train_op, loss, global_step],
+                                                                feed_dict={x: xs, y_: ys},
+                                                                options=run_options, run_metadata=run_metadata)
+                        writer.add_run_metadata(run_metadata, 'step%03d' % i)
+                        writer.add_summary(summary, i)
                         vxs, vys = sess.run([validation_image_batch, validation_label_batch])
                         p, a, accuracy_score = sess.run([prediction, answer, accuracy], feed_dict={x: vxs, y_: vys})
                         print("prediction: \t%s, \nanswer: \t\t%s" % (p[0:10], a[0:10]))
                         print("after %d steps, loss: %.3f, accuracy: %.3f" % (step, loss_value, accuracy_score))
+                    else:
+                        summary, _, loss_value, step = sess.run([merged, train_op, loss, global_step],
+                                                                feed_dict={x: xs, y_: ys})
+                        writer.add_summary(summary, i)
                 except tf.errors.OutOfRangeError:
                     # i = step
                     break
@@ -436,21 +462,24 @@ def process_data(doTrain=True):
             )
 
         else:
-
             ckpt = tf.train.get_checkpoint_state("model/")
             if ckpt and ckpt.model_checkpoint_path:
                 sess.run(test_iterator.initializer)
                 saver.restore(sess, ckpt.model_checkpoint_path)
-                start = np.random.randint(int(test_images/3), int(test_images/2))
+                start = np.random.randint(int(test_images / 3), int(test_images / 2))
                 length = 10
                 txs, tys = sess.run([test_image_batch, test_label_batch])
-                p, a = sess.run([prediction, answer], feed_dict={x: txs[start:start+length], y_: tys[start:start+length]})
+                p, a = sess.run([prediction, answer],
+                                feed_dict={x: txs[start:start + length], y_: tys[start:start + length]})
                 print("prediction: \t%s, \nanswer: \t\t%s" % (p, a))
 
             else:
                 print("model not exist")
         coord.request_stop()
         coord.join(threads)
+
+    # writer = tf.summary.FileWriter("log", tf.get_default_graph())
+    writer.close()
 
 
 # ************* dataset operation **************
@@ -525,6 +554,8 @@ def dataset_basic_test():
     dataset = dataset.repeat(N)
 
 
+# open tensorboard cmd:
+# tensorboard --logdir=/path/to/log --port=6006
 if __name__ == '__main__':
     # threads_mgmt()
     # generate_files()
@@ -532,5 +563,5 @@ if __name__ == '__main__':
     # batch_example()
     # process_data()
     # generate_record()
-    process_data(doTrain=False)
+    process_data(doTrain=True)
     # dataset_basic_test()

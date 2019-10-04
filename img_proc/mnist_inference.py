@@ -18,6 +18,18 @@ CONV2_SIZE = 5
 FC_SIZE = 84
 
 
+def variable_summaries(var, name):
+    with tf.name_scope('summaries'):
+        tf.summary.histogram(name, var)
+
+        # calc mean
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean/' + name, mean)
+        # calc standard deviation
+        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+        tf.summary.scalar('stddev/' + name, stddev)
+
+
 def inference(input_tensor, train, regularizer):
     # print(input_tensor.get_shape())
     # define layer1 forward propagation
@@ -30,6 +42,9 @@ def inference(input_tensor, train, regularizer):
         # strides 中间两项表示长宽方向步长1
         conv1 = tf.nn.conv2d(input_tensor, conv1_weights, strides=[1, 1, 1, 1], padding='SAME')
         relu1 = tf.nn.relu(tf.nn.bias_add(conv1, conv1_biases))
+
+        variable_summaries(conv1_weights, 'layer1-conv1' + '/weights')
+        variable_summaries(conv1_biases, 'layer1-conv1' + '/biases')
     # define layer2 forward propagation, max pooling, size 2*2, step 2*2, all 0 filling
     with tf.variable_scope('layer2-pool1'):
         pool1 = tf.nn.max_pool(relu1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
@@ -44,6 +59,8 @@ def inference(input_tensor, train, regularizer):
         conv2 = tf.nn.conv2d(pool1, conv2_weights, strides=[1, 1, 1, 1], padding='SAME')
         relu2 = tf.nn.relu(tf.nn.bias_add(conv2, conv2_biases))
 
+        variable_summaries(conv2_weights, 'layer3-conv2' + '/weights')
+        variable_summaries(conv2_biases, 'layer3-conv2' + '/biases')
     with tf.variable_scope('layer4-poll2'):
         pool2 = tf.nn.max_pool(relu2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
     # print(pool2.get_shape())
@@ -67,6 +84,8 @@ def inference(input_tensor, train, regularizer):
         if train:
             fc1 = tf.nn.dropout(fc1, 0.5)
 
+        variable_summaries(fc1_weights, 'layer5-fc1' + '/weights')
+        variable_summaries(fc1_biases, 'layer5-fc1' + '/biases')
     with tf.variable_scope('layer6-fc2'):
         fc2_weight = tf.get_variable(
             'weight',
@@ -79,4 +98,6 @@ def inference(input_tensor, train, regularizer):
 
         logit = tf.matmul(fc1, fc2_weight) + fc2_biases
 
+        variable_summaries(fc2_weight, 'layer6-fc2' + '/weights')
+        variable_summaries(fc2_biases, 'layer6-fc2' + '/biases')
     return logit

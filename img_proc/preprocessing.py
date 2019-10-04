@@ -109,7 +109,7 @@ def process_for_train(image, height, width, bbox, channels=3):
         image = tf.image.convert_image_dtype(image, dtype=tf.float32)
 
     bbox_begin, bbox_size, _ = tf.image.sample_distorted_bounding_box(
-        tf.shape(image), bounding_boxes=bbox
+        tf.shape(image), bounding_boxes=bbox, min_object_covered=0.1
     )
     distorted_img = tf.slice(image, bbox_begin, bbox_size)
     # resize input image for train, all kinds of interpolation
